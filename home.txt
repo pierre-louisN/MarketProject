@@ -1,0 +1,31 @@
+// 1 maison communique avec market et les autres maisons via MessageQueues (voir exo 2 td4)
+//Utilisation des locks et acquire() pour synchroniser les threads
+
+conso = ...
+prod = ...
+etat =
+
+clé ← ...
+
+maison = ... //maison est un processus qui communique avec market
+InitialisationMaisons() // démarrage des threads qui représente les maisons, on va les gérer via un manager
+
+ConnexionMarket(cle) // on connecte chaque maison au market et on va envoyer et recevoir des messages via MessageQueues
+
+def maison():
+  TANT QUE VRAI :
+    energie = conso - prod
+    SI energie > 0 ALORS :
+      mendierEnergie(energie) // la maison va "mendier de l'energie" aux treacds qui sont en états 1 ou 3
+      achatEnergie(energie) // si aucun thread ne lui donne ou alors pas assez, elle va en acheter au marché
+    SINON
+      si ETAT = 1 : // donner son surplus
+        donnerEnergie(energie) // le thread va donner son surplus à la première maison "mendiante" qu'il rencontre
+        //si il n'y a aucune maison qui en a besoin le thread se met en attente
+      SINON SI ETAT == 2 : //vendre au marché
+        vendreEnergie(energie) //vend le surplus au marché
+      SINON // etat 3, vendre si aucune demande
+        don = donnerEnergie(energier,timer) //on regarder d'abord si une maison est "mendiante", si aucune on attend un certain Temps
+        SI !(don)  ALORS : //si aucune maison ne voulait d'energie alors on vend le surplus au marché
+          vendreEnergie(energie)
+    MajConso(conso,prod) // on met à jour la consommation en regardant la météo via la mémoire partagée de weather

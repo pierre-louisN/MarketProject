@@ -1,0 +1,76 @@
+Voici le plan d'implémentation pour le market project :
+
+Etape 1 :
+Crée chaque process chacun de leurs côtés, càd qu'ils ne communiquent pas entre eux pour l'instant,
+on va tester si il fonctionne avec des valeurs en "durs"
+
+On va les créer dans un ordre de "dépendance" à market :
+  market
+  home
+  politics & economics (ces deux processus sont très similaires donc on pourra gagner du temps en les créant en même temps)
+  weather
+
+Pour tester le bon fonctionnement de chacun des processus, voici les tests que l'on va mettre en place :
+weather:
+Création d'une valeur de température qui est modifié au fil du temps et affiché sur le  terminal
+On vérifie que la valeur est bien modifié
+
+home :
+Création et synchronisation de plusieurs threads (maisons) et on regarde si il communique correctement entre eux
+(pas de deadlock...)
+Chaque maison se passe son énergie, et dès que une maison est bloquée (pas assez d'énergie et personne pour lui en donner)
+elle l'affiche sur le terminal (plus tard au lieu d'afficher, la maison ira en acheter avec market)
+
+politics & economics :
+Même principe que weather, sauf que cette fois on va faire ça avec des Event() dans un tableau
+On modifie aléatoirement un des évènements et on vérifie en affichant sur le terminal si il est bien passé à true
+
+market :
+Création d'une valeur représentant le prix, de plusieurs threads, et valeurs aléatoires considérés comme des facteurs
+Certains threads lisent le prix, d'autres le modifient et d'autres vont chercher la valeur des facteurs
+
+
+Etape 2:
+Test de paires de process
+On va ensuite tester pour chaque paire de processus communiquant ensemble si ils fonctionnement correctement
+On va suivre le même ordre que précédemment, car on va modifier le programme market au fil des tests
+
+market et home :
+On va utiliser la valeur prix, pour vérifier si les processus communiquent bien ensemble,
+chacune des maisons va faire tourner son algo et dès que un achat est fait, market donne le prix à la maison achetant
+la maison affiche sur le terminal qu'elle vient de faire un transaction
+le marché fait pareil et affiche que le prix a augmenté
+la difficulté pour market sera de gérer les transactions avec les maisons
+pour home ce sera de gérer la communication entre chaque maison entre elles et avec market
+
+market et weather :
+Pour ce test, on va initialiser la mémoire partagée, y ranger une valeur représentant la température,
+la modifier via le processus weather et la lire avec market
+Il faut faire en sorte qu'il y ait pas de conflits (grâce à des verrous) et que chaque processus arrive à accéder à la mémoire
+
+market et politics :
+Market initialise politics qui est son processus fils, et partage avec lui une structure de donnée partagée (Array)
+dans cette strucuture, il y a des évènements qui sont modifiés par le fils et à chaque modification,
+le fils notifie le père qui affiche sur le terminal si la modification a bien été faite
+
+market et economics :
+même chose qu'avec politics mais avec des évènement différents
+
+
+Etape 3 :
+Synchronisation et "sécurité" de la simulation,
+
+on relie les processus avec market, (dans l'ordre de l'étape 1),
+en vérifiant à chaque fois que le démarrage d'une communication d'une paire de processus n'en dérègle pas une autre
+même chose pour leurs terminaisons
+
+Etape 4 :
+Mise en route de la simulation, on teste avec des valeurs fixées pour chaque processus
+
+Etape 5:
+Ajout de fonctionnalités et de facteurs supplémentaires
+weather : en plus de la température, on pourrait rajouter d'autre conditions météorologiques, comme la pression atmosphérique ou l'humidité
+politics :
+economics
+home :
+market :

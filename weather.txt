@@ -1,0 +1,41 @@
+// Weather met à jour la température dans une mémoire partagée
+//On va stocker les valeurs de la météo dans un Array possédant un lock
+// voir https://docs.python.org/fr/3/library/multiprocessing.shared_memory.html
+
+
+valeurs ← [.,.,.,.,.,] //valeurs à définir
+
+
+mem = InitialisationMemoire(valeurs) // on crée la mémoire
+
+verrou = InitialisationVerrou()
+
+PartageMemoire(mem, verrou) //on partage la mémoire avec le processus market et home (il faut que ce soit synchronisé)
+
+
+Weather ← Process(target ← MajTemps(), args(params,mem) )
+
+weather.start()
+
+finweather(mem) //termine le processus et "détache" la mémoire de manière sûre
+
+
+
+
+/*
+mem=  shared_memory.SharedMemory(name ='weather',create=True, size=params.nbytes)
+
+
+meteo = np.ndarray(params.shape, dtype=params.dtype, buffer=mem.buf)
+
+Weather ← Process(target ← MajTemps(), args(params) )
+
+//fonction MajTemps() contient une boucle infinie qui met à jour les paramètres Temps
+
+Weather.start()
+
+
+// a la fin
+memory.close()
+memory.unlink()
+*/

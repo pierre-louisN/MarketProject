@@ -1,0 +1,57 @@
+//Martket calcule prix de l'énergie et gére les transactions avec les maisons
+
+prix = ...
+
+cle = ...
+
+
+//InitialisationVerrou()
+//InitialisationMessageQueues(cle)
+
+DemarrageMarket()
+DemarrageComunicationMaison(Maisons)
+
+Evenements = ...
+CreationFils(Evenements) //on créer les deux fils (via a un fork) qui vont s'occuper de mettre à jour les évènements
+
+Tant que VRAIE :
+  prix = MajPrix(prix) // met à jour le prix en utlisant les facteur externes
+  AfficherPrix(prix) // affiche le prix sur le terminal
+
+  GestionTransactions(maisons) //gére les transactions avec les maisons
+
+  Si Achat() ALORS :
+    EnvoyerPrix(prix)
+
+def politics(evenements):
+  //on parcours les evenements qui sont un dans un Array partagée avec lepère (market)
+  TANT QUE ... :
+    event = ...
+    SI ... :
+      event.set()
+  //market vérifiera l'événements avec event.is_set()
+
+//Même chose pour Economics, mais avec des évènements différents
+
+
+
+/*
+//Pour récupérer les valeurs des températures :
+memory = shared_memory.SharedMemory(name='weather')
+// on imagine que il y a au moins 2 facteur de temps, exemple : température et humidité
+temps = np.ndarray((2,), dtype=np.int64, buffer=memory.buf)
+*/
+
+
+
+/*
+donnée = []
+for i in range(len(donnée)):
+  donneé[i] =  multiprocessing.Event() //  chaque donnée du tableau est un évènement
+
+if politics :
+  MajPolitics(donnée) //met à jour les évènements politques avec set()
+
+else if economis:
+    MajEco(donnée) //met à jour les évènements économiques avec set()
+*/
