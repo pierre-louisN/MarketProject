@@ -32,7 +32,7 @@ def politics(evenements):
   //market vérifiera l'événements avec event.is_set()
 
 //Même chose pour Economics, mais avec des évènements différents
-
+//Non, on va utiliser les signaux de type SIG et le envoyer via pipe et gérer la synchro avec send(), recv, ...
 
 
 /*

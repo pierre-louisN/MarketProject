@@ -3,7 +3,7 @@
 
 conso = ...
 prod = ...
-etat =
+etat = ...
 
 clé ← ...
 
@@ -11,6 +11,7 @@ maison = ... //maison est un processus qui communique avec market
 InitialisationMaisons() // démarrage des threads qui représente les maisons, on va les gérer via un manager
 
 ConnexionMarket(cle) // on connecte chaque maison au market et on va envoyer et recevoir des messages via MessageQueues
+ConnexionWeather(nom) // se connecte à la mémoire en read-only access avec mmap()
 
 def maison():
   TANT QUE VRAI :

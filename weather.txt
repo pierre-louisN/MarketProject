@@ -6,12 +6,12 @@
 valeurs ← [.,.,.,.,.,] //valeurs à définir
 nom = nom de la mémoire (météo)
 
-mem = InitialisationMemoire(valeurs,nom) // on crée la mémoire via smh ou nmap
+mem = InitialisationMemoire(valeurs,nom) // on crée la mémoire via smh avec nmap()
 
 verrou = InitialisationVerrou()
 
 PartageMemoire(mem, verrou) //on partage la mémoire avec le processus market et home (il faut que ce soit synchronisé)
-
+//pas nécessaire
 
 Weather ← Process(target ← MajTemps(), args(params,mem) )
 
