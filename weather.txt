@@ -4,9 +4,9 @@
 
 
 valeurs ← [.,.,.,.,.,] //valeurs à définir
+nom = nom de la mémoire (météo)
 
-
-mem = InitialisationMemoire(valeurs) // on crée la mémoire
+mem = InitialisationMemoire(valeurs,nom) // on crée la mémoire via smh ou nmap
 
 verrou = InitialisationVerrou()
 
