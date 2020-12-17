@@ -1,41 +1,29 @@
-// Weather met à jour la température dans une mémoire partagée
-//On va stocker les valeurs de la météo dans un Array possédant un lock
+// weather met à jour la température dans une mémoire partagée
+//On va stocker les valeurs de la météo dans un Value et y accéder via Lock (Semaphore)
 // voir https://docs.python.org/fr/3/library/multiprocessing.shared_memory.html
 
 
-valeurs ← [.,.,.,.,.,] //valeurs à définir
-nom = nom de la mémoire (météo)
+valeurs ← ... //valeurs à définir (ex: température moyenne de la planète => 15 degrés)
+nom ← ... // nom de la mémoire (ex : meteo)
 
-mem = InitialisationMemoire(valeurs,nom) // on crée la mémoire via smh avec nmap()
+mem ← initialisationMemoire(valeurs,nom) // on crée la mémoire via smh avec nmap()
 
-verrou = InitialisationVerrou()
+verrou ← initialisationVerrou() //crée le verrou qui permet au processus d'empêcher les autres proc. de lire pendant que la valeur est modifié
 
-PartageMemoire(mem, verrou) //on partage la mémoire avec le processus market et home (il faut que ce soit synchronisé)
-//pas nécessaire
-
-Weather ← Process(target ← MajTemps(), args(params,mem) )
-
-weather.start()
-
-finweather(mem) //termine le processus et "détache" la mémoire de manière sûre
+PartageMemoire(mem, verrou) //on partage la mémoire avec le processus market et home, chacun de ses processus possède son verrou pour lire la valeur
 
 
+boolean majTemps(Lock verrou, Entier temps):
+  Début
+  Boolean modif = VRAIE
+  Tant Que modif :
+    Si ... Alors// condition à définir pour modifier la temparature (exemple: +0.5 degrés toutes les secondes pendant 300 secondes puis -0.1 pendant 200s etc ...)
+      Lock.acquire()
+      modif ← modificationValeur(temps)
+      Lock.release()
+    retourne modif // retourne FAUX si au bout d'un certain temps, la modification n'a pas pu se faire, probablement à cause d'un verrou,
+  Fin
 
+demarrageWeather(MajTemps(),mem,verrou)
 
-/*
-mem=  shared_memory.SharedMemory(name ='weather',create=True, size=params.nbytes)
-
-
-meteo = np.ndarray(params.shape, dtype=params.dtype, buffer=mem.buf)
-
-Weather ← Process(target ← MajTemps(), args(params) )
-
-//fonction MajTemps() contient une boucle infinie qui met à jour les paramètres Temps
-
-Weather.start()
-
-
-// a la fin
-memory.close()
-memory.unlink()
-*/
+finWeather(mem,verrou) //termine le processus et "détache" la mémoire de manière sûre

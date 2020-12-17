@@ -1,57 +1,50 @@
-//Martket calcule prix de l'énergie et gére les transactions avec les maisons
+//market calcule prix de l'énergie et gére les transactions avec les maisons
+//est un processus multi-threaded,
+//comumunique avec les maisons via MessageQueue
 
-prix = ...
+Entier prix ← ... // prix de départ de l'énergie
+Entier cle ← ... // cle pour communiquer avec les maisons via MessageQueue
+Chaine nom ← ... // nom de la mémoire partagée de weather
+Entier [] evenements ← ... //tableau d'entier représentant des évènements externes, modifiés par les fils
 
-cle = ...
+verrou ← initialisationVerrou(Entier nom)
+mq ← initialisationMessageQueues(Entier cle)
+mem ← connexionWeather(Chaine nom) // se connecte à la mémoire en read-only access avec mmap() via le nom de la mémoire , renvoie FAUX Si il y a eu un problème,
+workers ← initialisationThreads(Entier n, Entier cle) // Pool de threads qui permettront de gérer les transactions, limité par n
+politics, economis ← creationFils() // crée les 2 fils via un Fork
+tube ← connexionFils(politics,economis) // initialise le tube permettant à market de communiquer avec ses fils avcec Pipe
 
+market(shared_memory mem, MessageQueue mq, Lock verrou, Entier prix, ThreadPoolExecutor workers, Entier tab[3] evenements)
+  Entier temp // température
+  Entier vendu //énergie acheté sur le marché
+  Entier achete //énergie vendu sur le marché
+  Tant que VRAIE Alors
+    Si receptionSignal() Alors //lorsque les fils envoie des signaux pour signifier qu'un événements à changer d'états
+      evenements ← gestionSignal(evenements) // on met à jour les évènements modifiés
+    Si receptionMessage(mq) Alors // reception des messages via receive()
+      gestionMessage(mq,workers,vendu,achete)
+    temp ← recupTemp(mem,verrou) // récupère la valeur de la température
+    prix ← majPrix(prix, ) // met à jour le prix en utilisant les facteur externes et internes, les coefficients sont définis au préalable
+    afficher prix // affiche le prix sur le terminal
 
-//InitialisationVerrou()
-//InitialisationMessageQueues(cle)
+gestionMessage(prix,mq,workers,vendu,achete) //gére les transactions avec les maisons avec send() et receive()
+//met à jour le prix avec le taux de consommation moyen via un Pool de threads (workers)
+//met à jour l'énergie vendu et acheté à chaque transaction
 
-DemarrageMarket()
-DemarrageComunicationMaison(Maisons)
+politics(tube)
+  //modifie les évènements qui sont un dans un Array partagée avec le père (market) en  envoyant des signaux via un pipe
+  Booleen flag  ← VRAI
+  Tant Que flag Alors
+    Si tube.recv == "stop" Alors
+      finProc() //envoi au père le signal pour lui dire qu'il termine
+      flag ← FAUX
+    Sinon si ...  ALors// condition à définir pour modifier l'évènements (exemple : taux de change augmente de )
+      tube.send(signal) // envoie au père un signal pour lui dire que un évènement a changé d'état (SIGUSR1 correspond aux tensions diplomatiques par exemple)
+  tube.close() // ferme la connexion
 
-Evenements = ...
-CreationFils(Evenements) //on créer les deux fils (via a un fork) qui vont s'occuper de mettre à jour les évènements
+economis(tube) // même principe que pour economics avec des signaux différents
 
-Tant que VRAIE :
-  prix = MajPrix(prix) // met à jour le prix en utlisant les facteur externes
-  AfficherPrix(prix) // affiche le prix sur le terminal
+DemarrageMarket(mq,mem,workers,tube) // démarre le procesus et initialise les ressources
 
-  GestionTransactions(maisons) //gére les transactions avec les maisons
-
-  Si Achat() ALORS :
-    EnvoyerPrix(prix)
-
-def politics(evenements):
-  //on parcours les evenements qui sont un dans un Array partagée avec lepère (market)
-  TANT QUE ... :
-    event = ...
-    SI ... :
-      event.set()
-  //market vérifiera l'événements avec event.is_set()
-
-//Même chose pour Economics, mais avec des évènements différents
-//Non, on va utiliser les signaux de type SIG et le envoyer via pipe et gérer la synchro avec send(), recv, ...
-
-
-/*
-//Pour récupérer les valeurs des températures :
-memory = shared_memory.SharedMemory(name='weather')
-// on imagine que il y a au moins 2 facteur de temps, exemple : température et humidité
-temps = np.ndarray((2,), dtype=np.int64, buffer=memory.buf)
-*/
-
-
-
-/*
-donnée = []
-for i in range(len(donnée)):
-  donneé[i] =  multiprocessing.Event() //  chaque donnée du tableau est un évènement
-
-if politics :
-  MajPolitics(donnée) //met à jour les évènements politques avec set()
-
-else if economis:
-    MajEco(donnée) //met à jour les évènements économiques avec set()
-*/
+finCommunicationMaisons(workers)
+finMarket(mq,mem,tube) //termine le processus et libère les ressources

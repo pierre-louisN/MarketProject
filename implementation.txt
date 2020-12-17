@@ -1,6 +1,6 @@
-Voici le plan d'implémentation pour le market project :
+Voici notre plan d'implémentation pour le market project :
 
-Etape 1 :
+Etape 1 : 10 ~ 12 h
 Crée chaque process chacun de leurs côtés, càd qu'ils ne communiquent pas entre eux pour l'instant,
 on va tester si il fonctionne avec des valeurs en "durs"
 
@@ -30,9 +30,9 @@ Création d'une valeur représentant le prix, de plusieurs threads, et valeurs a
 Certains threads lisent le prix, d'autres le modifient et d'autres vont chercher la valeur des facteurs
 
 
-Etape 2:
+Etape 2: 5 ~ 6 h
 Test de paires de process
-On va ensuite tester pour chaque paire de processus communiquant ensemble si ils fonctionnement correctement
+On va ensuite tester pour chaque paire de processus communiquant ensemble s'ils fonctionnement correctement
 On va suivre le même ordre que précédemment, car on va modifier le programme market au fil des tests
 
 market et home :
@@ -57,20 +57,21 @@ market et economics :
 même chose qu'avec politics mais avec des évènement différents
 
 
-Etape 3 :
+Etape 3 : 2 ~ 4h
 Synchronisation et "sécurité" de la simulation,
 
 on relie les processus avec market, (dans l'ordre de l'étape 1),
 en vérifiant à chaque fois que le démarrage d'une communication d'une paire de processus n'en dérègle pas une autre
 même chose pour leurs terminaisons
+(Utiliser des Flags)
 
-Etape 4 :
+Etape 4 : 1 ~2 h
 Mise en route de la simulation, on teste avec des valeurs fixées pour chaque processus
+(Utiliser des variables pour debug si besoin)
 
 Etape 5:
 Ajout de fonctionnalités et de facteurs supplémentaires
 weather : en plus de la température, on pourrait rajouter d'autre conditions météorologiques, comme la pression atmosphérique ou l'humidité
-politics :
-economics
-home :
-market :
+politics : ajout d'autres évènements qui peuvent faire fluctuer le prix (exemple: coup d'état ...)
+economics : même chose (exemple : crise économique, ... )
+(Utilisation de la classe Event() pour politics et economics ?)
