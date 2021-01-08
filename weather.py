@@ -74,7 +74,6 @@ if __name__== "__main__":
         p2.join()
     
         print(temperature.value)
-        print(année.value)
         time.sleep(2)
     
     
