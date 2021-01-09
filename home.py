@@ -11,7 +11,7 @@ key = 666
 conso= 50
 prod = 100
 
-
+#remarque il faut utiliser des signaux pour démarrer les jobs
 #utiliser close() et terminate() pour mettre fin à l'utilisation des ressources
 
 def maison(cons,prod,mq):
@@ -33,6 +33,8 @@ def maison(cons,prod,mq):
             print("énergie reçu=",int(don))
             prod  = prod + int(don)
         else :
+            #msg = str(energie) # les message dans MessageQueue sont forcément des objets bytes (des string)
+            #prod  = prod - energie
             if etat == 1 :
                 msg = str(energie) # les message dans MessageQueue sont forcément des objets bytes (des string)
                 mq.send(msg, type=2)
@@ -40,10 +42,16 @@ def maison(cons,prod,mq):
                 prod  = prod - energie
             elif etat == 2 :
                 print("on vend au marché")
+                msg = str(energie) # les message dans MessageQueue sont forcément des objets bytes (des string)
+                mq.send(msg, type=4)
+                prod  = prod - energie
             else :
                 print("vérifie si mendiant")
+                dem, type = mq.receive(False,3) #on regarde si il y a des demandes mais on ne se bloque pas
+                msg = str(energie) # les message dans MessageQueue sont forcément des objets bytes (des string)
+                mq.send(msg, type=2)
+                prod  = prod - energie
 
-        """
         print(os.getpid(),"avec prod =",prod,"et cons=",cons)
         time.sleep(2)
 
@@ -51,6 +59,7 @@ def maison(cons,prod,mq):
 if __name__ == "__main__":
     try:
         #mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREX)
+
         mq = sysv_ipc.MessageQueue(key)
     except ExistentialError:
         print("Message queue", key, "already exsits, terminating.")
@@ -64,4 +73,3 @@ if __name__ == "__main__":
 
     for proc in processes :
         proc.join() #on attend la fin du proc pour le terminer
-    mq.remove()
