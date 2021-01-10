@@ -10,15 +10,14 @@ import time
 nom = "meteo"
 
 
-année = multiprocessing.Value("i")
+#année = multiprocessing.Value("i")
 temperature = multiprocessing.Value("i")
-saison = multiprocessing.Value("i")
-
+saison = randint(1,4)
+'''
 def solstice(saison,année) :
     
     if année.value == 1 :
         saison.value = 1 ##"hiver"
-        time.sleep(2)
         année.value = 2
     elif année.value == 2 :
         saison.value = 2 ##"printemps"
@@ -32,49 +31,55 @@ def solstice(saison,année) :
         saison.value = 4 ##"automne"
         time.sleep(2)
         année.value = 1
-
+'''
 def meteo(saison,temperature,lock):
-    if saison.value == 1:
-        lock.acquire()
-        temp = randint(-2, 6)
-        temperature.value = temp
-        lock.release()  
-    if saison.value == 4:
-        lock.acquire()
-        temp = randint(10, 14)
-        temperature.value = temp
-        lock.release()
-    if saison.value == 3:
-        lock.acquire()
-        temp = randint(25, 32)
-        temperature.value = temp
-        lock.release()
-    if saison.value == 2:
-        lock.acquire()
-        temp = randint(14, 20)
-        temperature.value = temp
-        lock.release()
-    time.sleep(2)
+    while True :
+        
+        if saison == 1:
+            lock.acquire()
+            saison = 2
+            temp = randint(-2, 6)
+            temperature.value = temp
+            lock.release()  
+        if saison == 4:
+            lock.acquire()
+            saison = 1
+            temp = randint(10, 14)
+            temperature.value = temp
+            lock.release()
+        if saison == 3:
+            lock.acquire()
+            saison = 4
+            temp = randint(25, 32)
+            temperature.value = temp
+            lock.release()
+        if saison == 2:
+            lock.acquire()
+            saison = 3
+            temp = randint(14, 20)
+            temperature.value = temp
+            lock.release()
+    
  
 if __name__== "__main__":
 
     temperature.value = 12
-    année.value = 1 
-    saison.value = 1
+    #année.value = 1 
+    saison = 1
     print("Essai programme 1")
     lock = Lock()
-    while True :
-        p1 = multiprocessing.Process(target=solstice, args=(saison,année))
-        p2 = multiprocessing.Process(target=meteo,args=(saison,temperature,lock))
+    p1 = multiprocessing.Process(target=meteo, args=(saison,temperature,lock))
+    p2 = multiprocessing.Process(target=meteo,args=(saison,temperature,lock))
         
         
-        p1.start()
-        p2.start()
-        p1.join()
-        p2.join()
+    p1.start()
+    print(temperature.value)
+    p2.start()
+    print(temperature.value)
     
-        print(temperature.value)
-        time.sleep(2)
+    
+    
+   
     
     
 
