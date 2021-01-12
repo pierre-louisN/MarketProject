@@ -1,9 +1,10 @@
-from multiprocessing import Lock,Process,Value
+from multiprocessing import Lock,Process,Value, shared_memory
 from random import *
 from ctypes import c_char
 import multiprocessing
 import signal
 import time
+import sys
 
 
 
@@ -12,6 +13,7 @@ nom = "meteo"
 
 #année = multiprocessing.Value("i")
 temperature = multiprocessing.Value("i")
+
 saison = randint(1,4)
 '''
 def solstice(saison,année) :
@@ -70,13 +72,21 @@ if __name__== "__main__":
     lock = Lock()
     p1 = multiprocessing.Process(target=meteo, args=(saison,temperature,lock))
     p2 = multiprocessing.Process(target=meteo,args=(saison,temperature,lock))
-        
-        
+            
     p1.start()
     print(temperature.value)
     p2.start()
     print(temperature.value)
+    mem = shared_memory.ShareableList([10],name="mem_meteo")
+
+    while True :
+        print(mem.shm.name)
+        sleep(2) #mettre un tick pour synchro 
+
     
+    mem.shm.close()
+    mem.shm.unlink()
+
     
     
    
