@@ -5,26 +5,26 @@ import multiprocessing
 import signal
 import time
 
-evenement = multiprocessing.Value('i')
+evenement = randint(1,40)
 crash_fincancier = False
 dictature = False
 anarchie = False
 
-def Event(evenement,aleat):
-    evenement.value = aleat
-    if evenement.value == 9 :
+def Event(evenement):
+    #Il y a 3 évènements possibles, à chaque synchronisation on lance un randint 
+    #Si le randint correspond à l'un des évènement : il devient vrai
+    if evenement == 9 :
         crash_fincancier = True
-    elif evenement.value == 13 :
+    elif evenement == 13 :
         dictature = True 
-    elif evenement.value == 0 : 
+    elif evenement == 0 : 
         anarchie = True
     
 
 if __name__ == "__main__" :
     
-    aleat = randint(1,20)
-    p1 = multiprocessing.Process(target=Event , args = (evenement, aleat))
-    p2 = multiprocessing.Process(target=Event , args = (evenement, aleat))
+    p1 = multiprocessing.Process(target=Event , args = (evenement))
+    p2 = multiprocessing.Process(target=Event , args = (evenement))
     
     p1.start()
     p1.join()

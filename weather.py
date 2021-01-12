@@ -33,32 +33,32 @@ def solstice(saison,année) :
         année.value = 1
 '''
 def meteo(saison,temperature,lock):
-    while True :
-        
-        if saison == 1:
-            lock.acquire()
-            saison = 2
-            temp = randint(-2, 6)
-            temperature.value = temp
-            lock.release()  
-        if saison == 4:
-            lock.acquire()
-            saison = 1
-            temp = randint(10, 14)
-            temperature.value = temp
-            lock.release()
-        if saison == 3:
-            lock.acquire()
-            saison = 4
-            temp = randint(25, 32)
-            temperature.value = temp
-            lock.release()
-        if saison == 2:
-            lock.acquire()
-            saison = 3
-            temp = randint(14, 20)
-            temperature.value = temp
-            lock.release()
+    # on simule les saisons avec une variable saison qui augmentera après un certains nombre de signaux
+    # les températures sont données de façon aléatoire selon la saion
+    if saison == 1:
+        lock.acquire()
+        saison = 2
+        temp = randint(-2, 6)
+        temperature.value = temp
+        lock.release()  
+    if saison == 4:
+        lock.acquire()
+        saison = 1
+        temp = randint(10, 14)
+        temperature.value = temp
+        lock.release()
+    if saison == 3:
+        lock.acquire()
+        saison = 4
+        temp = randint(25, 32)
+        temperature.value = temp
+        lock.release()
+    if saison == 2:
+        lock.acquire()
+        saison = 3
+        temp = randint(14, 20)
+        temperature.value = temp
+        lock.release()
     
  
 if __name__== "__main__":
