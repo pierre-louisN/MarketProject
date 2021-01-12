@@ -5,7 +5,8 @@ import multiprocessing
 import signal
 import time
 
-evenement = multiprocessing.Value('i')
+evenement = multiprocessing.Array('i')
+listEvenement = [guerre,dictature,anarchie]
 guerre = False
 dictature = False
 anarchie = False

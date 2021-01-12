@@ -1,35 +1,38 @@
-from multiprocessing import Lock,Process,Value
+from multiprocessing import Lock,Process,Value,Pipe
 from random import *
-from ctypes import c_char
 import multiprocessing
-import signal
-import time
+import sys
+import os
 
-evenement = multiprocessing.Value('i')
+evenement = randint(1,40)
 crash_fincancier = False
 dictature = False
 anarchie = False
 
-def Event(evenement,aleat):
-    evenement.value = aleat
-    if evenement.value == 9 :
-        crash_fincancier = True
-    elif evenement.value == 13 :
-        dictature = True 
-    elif evenement.value == 0 : 
-        anarchie = True
-    
+#Création du pipe
+parent_conn, child_conn = Pipe()
 
+
+def Event(evenement, child_conn):
+    #Il y a 3 évènements possibles, à chaque synchronisation on lance un randint 
+    #Si le randint correspond à l'un des évènement : il devient vrai
+    while True :
+        evenement = randint(1,200)#les évènements ont une chance sur 200 d'arriver
+        if evenement == 9 :
+            crash_fincancier = True
+            child_conn.send("crash_fincancier")#prévient le père
+            print(parent_conn.recv())#c'était pour vérifier si le pipe fonctionnait correctement, j'ai fais un test en fixant evenement à 9
+        elif evenement == 13 :
+            dictature = True
+            child_conn.send("dictature")#prévient le père
+        elif evenement == 100 : 
+            anarchie = True
+            child_conn.send("anarchie")#prévient le père
+
+        
 if __name__ == "__main__" :
     
-    aleat = randint(1,20)
-    p1 = multiprocessing.Process(target=Event , args = (evenement, aleat))
-    p2 = multiprocessing.Process(target=Event , args = (evenement, aleat))
+    p1 = multiprocessing.Process(target=Event , args = (evenement,child_conn))
     
     p1.start()
     p1.join()
-    
-    print(evenement.value)
-    print(crash_fincancier)
-    print(dictature)
-    print(anarchie)
