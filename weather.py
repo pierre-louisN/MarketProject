@@ -4,15 +4,9 @@ from random import *
 import multiprocessing
 import signal
 import time
-<<<<<<< HEAD
-import sys
 
-nom = "meteo"
 
-=======
->>>>>>> f00a3568958708184c47b1b596a95bc853a4e0b3
 
-#année = multiprocessing.Value("i")
 temperature = multiprocessing.Value("i")
 
 saison = randint(1,4)
@@ -24,15 +18,10 @@ def liseur_Temp(lecture,temperature) :    # cette fonction simule ce que va fair
     
 
 def meteo(saison,temperature,lock):
-<<<<<<< HEAD
-    while True :
-        
-=======
     # on simule les saisons avec une variable saison qui augmentera après un certains nombre de signaux
     # les températures sont données de façon aléatoire selon la saison
     # les saisons changent en continue pour le moment parce qu'on a pas encore synchronisé les process avec les signaux
     while True :
->>>>>>> f00a3568958708184c47b1b596a95bc853a4e0b3
         if saison == 1:
             lock.acquire()
             saison = 2
@@ -62,44 +51,26 @@ def meteo(saison,temperature,lock):
 if __name__== "__main__":
 
     temperature.value = 12
-    #année.value = 1 
     lecture = randint(1,5)
     saison = 1
+    
     print("Essai programme 1")
+    
     lock = Lock()
+    
     p1 = multiprocessing.Process(target=meteo, args=(saison,temperature,lock))
-<<<<<<< HEAD
-    p2 = multiprocessing.Process(target=meteo,args=(saison,temperature,lock))
-            
-=======
-    p2 = multiprocessing.Process(target=liseur_Temp,args=(lecture,temperature))
-    p3 = multiprocessing.Process(target=liseur_Temp,args=(lecture,temperature))
-    p4 = multiprocessing.Process(target=liseur_Temp,args=(lecture,temperature))
-        
->>>>>>> f00a3568958708184c47b1b596a95bc853a4e0b3
     p1.start()
-    p2.start()
-<<<<<<< HEAD
-    print(temperature.value)
-    mem = shared_memory.ShareableList([10],name="mem_meteo")
-
+    
     while True :
-        print(mem.shm.name)
+        print(temperature.value)
         time.sleep(2) #mettre un tick pour synchro 
 
-    mem.shm.unlink()
-    mem.shm.close()
-=======
-    p3.start()
-    p4.start()
-    
     p1.join()
-    p2.join()
-    p3.join()
-    p4.join()
     
     
->>>>>>> f00a3568958708184c47b1b596a95bc853a4e0b3
+    
+    
+
     
 
     
