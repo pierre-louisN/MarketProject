@@ -4,35 +4,34 @@ import multiprocessing
 import sys
 import os
 
-evenement = randint(1,40)
+evenement_E = randint(1,400)
 crash_fincancier = False
-dictature = False
-anarchie = False
+inflation = False
+anarchie  = False
+listEvenementEconomics = [ crash_fincancier, inflation, anarchie ] #on peut faire une fonction qui lit ce tableau en boucle, et dès qu'il voit true agit
 
 #Création du pipe
 parent_conn, child_conn = Pipe()
 
-
-def Event(evenement, child_conn):
+def Event(evenement_E, child_conn):
     #Il y a 3 évènements possibles, à chaque synchronisation on lance un randint 
     #Si le randint correspond à l'un des évènement : il devient vrai
     while True :
-        evenement = randint(1,200)#les évènements ont une chance sur 200 d'arriver
-        if evenement == 9 :
+        evenement_E = randint(1,400)#les évènements ont une chance sur 200 d'arriver
+        if evenement_E == 9 :
             crash_fincancier = True
             child_conn.send("crash_fincancier")#prévient le père
-            print(parent_conn.recv())#c'était pour vérifier si le pipe fonctionnait correctement, j'ai fais un test en fixant evenement à 9
-        elif evenement == 13 :
-            dictature = True
-            child_conn.send("dictature")#prévient le père
-        elif evenement == 100 : 
+        elif evenement_E == 13 :
+            inflation = True
+            child_conn.send("inflation")#prévient le père
+        elif evenement_E == 100 : 
             anarchie = True
             child_conn.send("anarchie")#prévient le père
 
         
 if __name__ == "__main__" :
     
-    p1 = multiprocessing.Process(target=Event , args = (evenement,child_conn))
+    p1 = multiprocessing.Process(target=Event , args = (evenement_E,child_conn))
     
     p1.start()
     p1.join()
