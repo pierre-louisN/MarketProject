@@ -3,6 +3,7 @@ from random import *
 import multiprocessing
 import sys
 import os
+from random import *
 
 evenement_E = randint(1,400)
 crash_fincancier = False
@@ -27,8 +28,7 @@ def Event(evenement_E, child_conn):
         elif evenement_E == 100 : 
             anarchie = True
             child_conn.send("anarchie")#prévient le père
-
-        
+   
 if __name__ == "__main__" :
     
     p1 = multiprocessing.Process(target=Event , args = (evenement_E,child_conn))
