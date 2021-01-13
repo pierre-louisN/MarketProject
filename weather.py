@@ -1,41 +1,38 @@
 #!/usr/bin/env python3
 from multiprocessing import Lock,Process,Value, shared_memory
 from random import *
-from ctypes import c_char
 import multiprocessing
 import signal
 import time
+<<<<<<< HEAD
 import sys
 
 nom = "meteo"
 
+=======
+>>>>>>> f00a3568958708184c47b1b596a95bc853a4e0b3
 
 #année = multiprocessing.Value("i")
 temperature = multiprocessing.Value("i")
 
 saison = randint(1,4)
-'''
-def solstice(saison,année) :
+
+def liseur_Temp(lecture,temperature) :    # cette fonction simule ce que va faire les process home, ils vont récupérer la température et modifier leur conso
+    while True :                          # quand tu la testes on a l'impression qu'elle est mauvaise parce que les procs lisent des temp différentes
+        lecture = temperature.value       # mais c'est juste que les températures changent rapidement
+        print(lecture)                    # pour mieux observer son fonctionnement il suffit de rajouter des time.sleep dans def meteo
     
-    if année.value == 1 :
-        saison.value = 1 ##"hiver"
-        année.value = 2
-    elif année.value == 2 :
-        saison.value = 2 ##"printemps"
-        time.sleep(2)
-        année.value = 3
-    elif année.value == 3 :
-        saison.value = 3 ##"été"
-        time.sleep(2)
-        année.value = 4
-    elif année.value == 4 :
-        saison.value = 4 ##"automne"
-        time.sleep(2)
-        année.value = 1
-'''
+
 def meteo(saison,temperature,lock):
+<<<<<<< HEAD
     while True :
         
+=======
+    # on simule les saisons avec une variable saison qui augmentera après un certains nombre de signaux
+    # les températures sont données de façon aléatoire selon la saison
+    # les saisons changent en continue pour le moment parce qu'on a pas encore synchronisé les process avec les signaux
+    while True :
+>>>>>>> f00a3568958708184c47b1b596a95bc853a4e0b3
         if saison == 1:
             lock.acquire()
             saison = 2
@@ -66,15 +63,23 @@ if __name__== "__main__":
 
     temperature.value = 12
     #année.value = 1 
+    lecture = randint(1,5)
     saison = 1
     print("Essai programme 1")
     lock = Lock()
     p1 = multiprocessing.Process(target=meteo, args=(saison,temperature,lock))
+<<<<<<< HEAD
     p2 = multiprocessing.Process(target=meteo,args=(saison,temperature,lock))
             
+=======
+    p2 = multiprocessing.Process(target=liseur_Temp,args=(lecture,temperature))
+    p3 = multiprocessing.Process(target=liseur_Temp,args=(lecture,temperature))
+    p4 = multiprocessing.Process(target=liseur_Temp,args=(lecture,temperature))
+        
+>>>>>>> f00a3568958708184c47b1b596a95bc853a4e0b3
     p1.start()
-    print(temperature.value)
     p2.start()
+<<<<<<< HEAD
     print(temperature.value)
     mem = shared_memory.ShareableList([10],name="mem_meteo")
 
@@ -84,6 +89,17 @@ if __name__== "__main__":
 
     mem.shm.unlink()
     mem.shm.close()
+=======
+    p3.start()
+    p4.start()
+    
+    p1.join()
+    p2.join()
+    p3.join()
+    p4.join()
+    
+    
+>>>>>>> f00a3568958708184c47b1b596a95bc853a4e0b3
     
 
     

@@ -38,7 +38,7 @@ class market:
                 try : 
                     m, t = mq.receive(False)
                     calc = executor.submit(self.worker(m, t, cout))
-                    print(calc.result)
+                    print(calc.result())
                 except sysv_ipc.BusyError : 
                     print("Aucune transaction")
 
