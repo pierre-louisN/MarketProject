@@ -19,7 +19,7 @@ class maison :
     production = 100
     maisons = 10
 
-    def __init__(self, barrier, memory):
+    def __init__(self, barrier, temperature):
         print("Debut home")
         try:
             mq = sysv_ipc.MessageQueue(self.key, sysv_ipc.IPC_CREX)
@@ -33,7 +33,7 @@ class maison :
         prod = self.production
         temps = 0
         while True :
-            meteo = random.randint(-10, 30) #ici on ira chercher la valeur dans la mémoire partagée
+            meteo = temperature.value #ici on va chercher la valeur dans la mémoire partagée
             cons = cons - meteo #si temp > 0 alors consommation diminue (l'inverse sinon)
             if cons<0 :
                 cons = 0
