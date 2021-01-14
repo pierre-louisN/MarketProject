@@ -34,15 +34,12 @@ class maison :
 
         while True :
             meteo = random.randint(-10, 30) #ici on ira chercher la valeur dans la mémoire partagée
-            #print(meteo[1])
-            # shared memory 
             cons = cons - meteo #si temp > 0 alors consommation diminue (l'inverse sinon)
             if cons<0 :
                 cons = 0
             print(os.getpid(),": production =",prod,"et consommation =",cons)
             energie = prod - cons
             print(os.getpid(),": energie =",energie)
-            print("arret ici")
             if energie<=0: # manque d'energie
                 message = str(os.getpid())
                 mq.send(message, type=3)
