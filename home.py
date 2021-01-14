@@ -20,6 +20,7 @@ class maison :
     maisons = 10
 
     def __init__(self, barrier, memory):
+        print("Debut home")
         try:
             mq = sysv_ipc.MessageQueue(self.key, sysv_ipc.IPC_CREX)
 
@@ -41,7 +42,8 @@ class maison :
             print(os.getpid(),": production =",prod,"et consommation =",cons)
             energie = prod - cons
             print(os.getpid(),": energie =",energie)
-            if energie<=0: # manque d'nergie
+            print("arret ici")
+            if energie<=0: # manque d'energie
                 message = str(os.getpid())
                 mq.send(message, type=3)
                 print(os.getpid(),": demande énergie")
@@ -75,11 +77,13 @@ class maison :
 
             print(os.getpid(),": prod =",prod,"et cons=",cons)
             #time.sleep(2)
+            print(os.getpid(),"se met en attente")
+            print(barrier.n_waiting,"procs qui attendent")
             barrier.wait()
             #pas utiliser time.sleep mais mettre un 'tick' dans market pour synchro ou utiliser une barrière avec multiprocessing.Barrier
         mem.shm.close()
         mem.shm.unlink()
-        mq.remove
+        mq.remove()
         print("Fin Home")
 
 
