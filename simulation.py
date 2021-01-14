@@ -6,12 +6,15 @@ import sysv_ipc
 
 fin = False
 
+def handler(signum, frame):
+    fin = True
+
 if __name__== "__main__":
 
     key = 666
 
     print("Début simulation")
-    b = Barrier(4, timeout=20)
+    b = Barrier(4, timeout=10)
     shm = shared_memory.SharedMemory(create=True, size=10)
 
     try:
@@ -29,7 +32,7 @@ if __name__== "__main__":
     
     maisons = []
 
-    for i in range(10): #initialise les maisons
+    for i in range(2): #initialise les maisons
         maison = Process(target=home.maison, args=(b,shm))
         maisons.append(maison)
         maison.start()
@@ -37,9 +40,11 @@ if __name__== "__main__":
     while True:
         b.wait()
         if (fin):
+            mq.remove
             break
     
-    
+    signal.signal(signal.SIGINT, handler)
+
     
     for proc in maisons :
            proc.join() #on attend la fin du proc pour le terminer

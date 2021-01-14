@@ -19,7 +19,8 @@ class market:
                 #print("Marché fait la transaction") # es ce que c'est nécessaire d'envoyer quelque chose dans la queue ici ?
                 cout = cout + (int(m) * 0.01) # moins d'énergie disponible donc le prix augmente
             else :
-                print("Aucune transaction")
+                #print("Aucune transaction")
+                pass
             return cout
 
     def __init__(self, barrier, memory):
@@ -30,29 +31,33 @@ class market:
         except sysv_ipc.ExistentialError:
             #print("Message queue", self.key, "already exists, connecting in market.")
             mq = sysv_ipc.MessageQueue(self.key)
+            mq.remove()
+            mq = sysv_ipc.MessageQueue(self.key, sysv_ipc.IPC_CREX)
+
+
 
         with concurrent.futures.ThreadPoolExecutor(max_workers = 10) as executor: #limite  de 10 pour gérer les transactions avec les maisons
             couts = [5] # cout de l'energie
-            test = True
+            temps = 1
             while True:
-                print("Debug market")
                 # on va regarder les signaux pour economics et politics
                 try : 
                     m, t = mq.receive(False)
                     #calc = executor.submit(self.worker(m, t, cout)).
-                    print("le cout au début  est",couts,"et le test est ",test)
                     futures = [executor.submit(self.worker, cout, m, t) for cout in couts]
                     for future in concurrent.futures.as_completed(futures):
-                        print("prix actuelle de l'energie est",future.result())
-                        test = False
                         couts = [future.result()]
-                    print("le cout à la fin  est",couts,"et le test est ",test)
+                        
                     #cout[0] = calc.result()
                 except sysv_ipc.BusyError : 
-                    print("Aucune transaction")
-
+                    pass
+                    #print("Aucune transaction")
+                if temps % 3600 == 0:
+                    print("Jour n°",temps // 3600,"prix actuelle de l'energie est",couts[0])
+                
+                temps += 1
                 #print("prix actuelle de l'energie est",cout)
-                print(barrier.n_waiting,"procs qui attendent")
+                #print(barrier.n_waiting,"procs qui attendent")
                 barrier.wait()
                 
             print("Fin Market.")
