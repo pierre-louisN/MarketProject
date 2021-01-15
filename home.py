@@ -22,11 +22,11 @@ class maison :
     def __init__(self, barrier, temp):
         print("Debut home")
         try:
-            mq = sysv_ipc.MessageQueue(self.key, sysv_ipc.IPC_CREX)
+            mq = sysv_ipc.MessageQueue(self.key)
 
         except sysv_ipc.ExistentialError:
-            #print("Message queue", self.key, "already exists, connecting in market.")
-            mq = sysv_ipc.MessageQueue(self.key)
+            print("Message queue", self.key, "doesnt exists")
+            sys.exit(1)
         
         etat = random.randint(1, 3)
         cons = self.consommation

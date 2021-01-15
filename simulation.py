@@ -4,18 +4,19 @@ import market
 import weather
 from multiprocessing import Barrier, Process, shared_memory, Process, Lock, Value
 import sysv_ipc
+import signal
 
 fin = False
 
 def handler(signum, frame):
-    fin = True
+    self.fin = True
 
 if __name__== "__main__":
 
     key = 666
 
     print("Début simulation")
-    b = Barrier(4, timeout=10)
+    b = Barrier(6, timeout=10) # le nombre de procs est le nombre de maisons + 4
     
     temperature = Value("i",0)
 
@@ -25,14 +26,15 @@ if __name__== "__main__":
         print("Creation Message Queue")
 
     except sysv_ipc.ExistentialError:
-        print("Message queue", key, "already exists, resetting.")
+        print("Message queue", key, "already exists")
         mq = sysv_ipc.MessageQueue(key)
         mq.remove() # vide la queue
+        print("Resetting the Message queue")
         mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREX)
 
 
     print("Demarrage MessageQueue.")
-
+    
     marche = Process(target = market.market, args = (b,))
     marche.start()
     
@@ -46,9 +48,13 @@ if __name__== "__main__":
         maisons.append(maison)
         maison.start()
     
-    
-    while True:
-        #b.wait()
+    while not(fin):
+        b.wait()
+        try :
+            pass
+        except KeyboardInterrupt :
+            fin = True
+        
         if (fin):
             mq.remove()
             break
@@ -66,7 +72,3 @@ if __name__== "__main__":
     mq.remove()
     print("Fin simulation")
 
-
-
-
-# ici on va créer les objets et les gérer
