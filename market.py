@@ -23,7 +23,7 @@ class market:
                 pass
             return cout
 
-    def __init__(self, barrier, memory):
+    def __init__(self, barrier):
         print("Demarrage Market")
         try:
             mq = sysv_ipc.MessageQueue(self.key, sysv_ipc.IPC_CREX)
@@ -53,7 +53,7 @@ class market:
                     pass
                     #print("Aucune transaction")
                 if temps % 3600 == 0:
-                    print("Jour n°",temps // 3600,"prix actuelle de l'energie est",couts[0])
+                    print("Jour n°",temps // 3600,"prix de l'energie est",couts[0])
                 
                 temps += 1
                 #print("prix actuelle de l'energie est",cout)

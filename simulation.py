@@ -1,7 +1,8 @@
 #!/usr/bin/env python3 
 import home
 import market
-from multiprocessing import Barrier, Process, shared_memory, Process
+import weather
+from multiprocessing import Barrier, Process, shared_memory, Process, Lock, Value
 import sysv_ipc
 
 fin = False
@@ -15,37 +16,48 @@ if __name__== "__main__":
 
     print("Début simulation")
     b = Barrier(4, timeout=10)
-    shm = shared_memory.SharedMemory(create=True, size=10)
+    
+    temperature = Value("i",0)
+
 
     try:
-        mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
+        mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREX) # crée MessageQueue et renvoie une erreur si elle existe déjà
+        print("Creation Message Queue")
 
     except sysv_ipc.ExistentialError:
-        print("Message queue", key, "already exists, connecting.")
+        print("Message queue", key, "already exists, resetting.")
         mq = sysv_ipc.MessageQueue(key)
+        mq.remove() # vide la queue
+        mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREX)
+
 
     print("Demarrage MessageQueue.")
-    # démarre la barrière 
-    #
-    marche = Process(target=market.market, args=(b,shm))
+
+    marche = Process(target = market.market, args = (b,))
     marche.start()
+    
+    meteo = Process(target=weather.weather, args=(b, temperature))
+    meteo.start()
     
     maisons = []
 
     for i in range(2): #initialise les maisons
-        maison = Process(target=home.maison, args=(b,shm))
+        maison = Process(target=home.maison, args=(b,temperature))
         maisons.append(maison)
         maison.start()
-
+    
+    
     while True:
-        b.wait()
+        #b.wait()
         if (fin):
-            mq.remove
+            mq.remove()
             break
     
     signal.signal(signal.SIGINT, handler)
 
-    
+    marche.join()
+    meteo.join()
+
     for proc in maisons :
            proc.join() #on attend la fin du proc pour le terminer
     

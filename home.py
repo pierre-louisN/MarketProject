@@ -19,7 +19,7 @@ class maison :
     production = 100
     maisons = 10
 
-    def __init__(self, barrier, temperature):
+    def __init__(self, barrier, temp):
         print("Debut home")
         try:
             mq = sysv_ipc.MessageQueue(self.key, sysv_ipc.IPC_CREX)
@@ -33,7 +33,8 @@ class maison :
         prod = self.production
         temps = 0
         while True :
-            meteo = temperature.value #ici on va chercher la valeur dans la mémoire partagée
+            with temp.get_lock():
+                meteo = temp.value
             cons = cons - meteo #si temp > 0 alors consommation diminue (l'inverse sinon)
             if cons<0 :
                 cons = 0
@@ -59,7 +60,8 @@ class maison :
                     mq.send(msg, type=2)
                     #print(os.getpid(),": a envoyé son énergie",energie)
                 elif etat == 2 : # vente du surplus
-                    mq.send(msg, block = False, type=4)
+                    mq.send(msg, type=4)
+                    #mq.send(msg, block = False, type=4)
                     #print(os.getpid(),": a vendu au marché")
 
                 else : # vente du surplus si aucun mendiant
@@ -73,13 +75,8 @@ class maison :
                         #print(os.getpid(),": Aucun mendiant, vend au marché")
             if temps % 3600 == 0:
                 print("Jour n°",temps // 3600,os.getpid(),": prod =",prod,"et cons=",cons)
-            #time.sleep(2)
-            #print(os.getpid(),"se met en attente")
-            #print(barrier.n_waiting,"procs qui attendent")
-            #print("la barrier est ",barrier.broken)
             temps += 1
             barrier.wait()
-            #pas utiliser time.sleep mais mettre un 'tick' dans market pour synchro ou utiliser une barrière avec multiprocessing.Barrier
         mem.shm.close()
         mem.shm.unlink()
         mq.remove()
