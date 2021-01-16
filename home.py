@@ -31,54 +31,63 @@ class maison :
         etat = random.randint(1, 3)
         cons = self.consommation
         prod = self.production
-        temps = 0
+        secondes = 0
         while True :
-            with temp.get_lock():
-                meteo = temp.value
-            cons = cons - meteo #si temp > 0 alors consommation diminue (l'inverse sinon)
-            if cons<0 :
-                cons = 0
-            #print(os.getpid(),": production =",prod,"et consommation =",cons)
-            energie = prod - cons
-            #print(os.getpid(),": energie =",energie)
-            if energie<=0: # manque d'energie
-                message = str(os.getpid())
-                mq.send(message, type=3)
-                #print(os.getpid(),": demande énergie")
-                try :
-                    don, type = mq.receive(False,2) # on regarde s'il y a des donneurs
-                    #print(os.getpid(),": reception energie =",int(don))
-                    prod  = prod + int(don)
-                except sysv_ipc.BusyError : #si aucune maison ne donne de l'énergie
-                    mq.send(msg, type=5)
-                    #print(os.getpid(),": Aucun donneur, achete l'energie manquante au marché")
-                    prod = prod + abs(prod-cons)
-            else :
-                msg = str(energie) # les message dans MessageQueue sont forcément des objets bytes (des string)
-                prod  = prod - energie # on met à jour la production
-                if etat == 1 : # don du surplus
-                    mq.send(msg, type=2)
-                    #print(os.getpid(),": a envoyé son énergie",energie)
-                elif etat == 2 : # vente du surplus
-                    mq.send(msg, type=4)
-                    #mq.send(msg, block = False, type=4)
-                    #print(os.getpid(),": a vendu au marché")
-
-                else : # vente du surplus si aucun mendiant
-                    #print(os.getpid(),": vérifie s'il y a des mendiant")
+            try : 
+                with temp.get_lock():
+                    meteo = temp.value
+                cons = cons - meteo #si temp > 0 alors consommation diminue (l'inverse sinon)
+                if cons<0 :
+                    cons = 0
+                #print(os.getpid(),": production =",prod,"et consommation =",cons)
+                energie = prod - cons
+                #print(os.getpid(),": energie =",energie)
+                if energie<=0: # manque d'energie
+                    message = str(os.getpid())
+                    mq.send(message, type=3)
+                    #print(os.getpid(),": demande énergie")
                     try :
-                        dem, type = mq.receive(False,3) #on regarde si il y a des demandes mais on ne se bloque pas
+                        don, type = mq.receive(False,2) # on regarde s'il y a des donneurs
+                        #print(os.getpid(),": reception energie =",int(don))
+                        prod  = prod + int(don)
+                    except sysv_ipc.BusyError : #si aucune maison ne donne de l'énergie
+                        mq.send(msg, type=5)
+                        #print(os.getpid(),": Aucun donneur, achete l'energie manquante au marché")
+                        prod = prod + abs(prod-cons)
+                else :
+                    msg = str(energie) # les message dans MessageQueue sont forcément des objets bytes (des string)
+                    prod  = prod - energie # on met à jour la production
+                    if etat == 1 : # don du surplus
                         mq.send(msg, type=2)
-                        #print(os.getpid(),": a donnée",energie,"à maison mendiante")
-                    except sysv_ipc.BusyError : #si aucune maison ne demande de l'énergie
+                        #print(os.getpid(),": a envoyé son énergie",energie)
+                    elif etat == 2 : # vente du surplus
                         mq.send(msg, type=4)
-                        #print(os.getpid(),": Aucun mendiant, vend au marché")
-            if temps % 3600 == 0:
-                print("Jour n°",temps // 3600,os.getpid(),": prod =",prod,"et cons=",cons)
-            temps += 1
+                        #mq.send(msg, block = False, type=4)
+                        #print(os.getpid(),": a vendu au marché")
+
+                    else : # vente du surplus si aucun mendiant
+                        #print(os.getpid(),": vérifie s'il y a des mendiant")
+                        try :
+                            dem, type = mq.receive(False,3) #on regarde si il y a des demandes mais on ne se bloque pas
+                            mq.send(msg, type=2)
+                            #print(os.getpid(),": a donnée",energie,"à maison mendiante")
+                        except sysv_ipc.BusyError : #si aucune maison ne demande de l'énergie
+                            mq.send(msg, type=4)
+                            #print(os.getpid(),": Aucun mendiant, vend au marché")
+            except KeyboardInterrupt :
+                print("Ctrl +c attrapé dans home")
+                break
+            except sysv_ipc.Error :
+                print("Error")
+                break
+            """
+            if secondes % 3600 == 0:
+                print("Jour n°",secondes // 3600,os.getpid(),": prod =",prod,"et cons=",cons)
+            """
+            print("Jour n°",secondes,os.getpid(),": prod =",prod,"et cons=",cons)
+            secondes += 1
             barrier.wait()
-        mem.shm.close()
-        mem.shm.unlink()
+        
         mq.remove()
         print("Fin Home")
 

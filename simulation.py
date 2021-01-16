@@ -5,6 +5,7 @@ import weather
 from multiprocessing import Barrier, Process, shared_memory, Process, Lock, Value
 import sysv_ipc
 import signal
+import time
 
 fin = False
 
@@ -27,10 +28,13 @@ if __name__== "__main__":
 
     except sysv_ipc.ExistentialError:
         print("Message queue", key, "already exists")
-        mq = sysv_ipc.MessageQueue(key)
-        mq.remove() # vide la queue
-        print("Resetting the Message queue")
-        mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREX)
+        try :
+            mq = sysv_ipc.MessageQueue(key)
+            mq.remove() # vide la queue
+            print("Resetting the Message queue")
+            mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREX)
+        except sysv_ipc.PermissionsError :
+            print("Erreur de permission")
 
 
     print("Demarrage MessageQueue.")
@@ -49,6 +53,7 @@ if __name__== "__main__":
         maison.start()
     
     while not(fin):
+        time.sleep(1) #pour "ralentir l'execution"
         b.wait()
         try :
             pass
@@ -56,6 +61,7 @@ if __name__== "__main__":
             fin = True
         
         if (fin):
+            print("Ctrl + C attrapé par simulation")
             mq.remove()
             break
     
@@ -67,8 +73,7 @@ if __name__== "__main__":
     for proc in maisons :
            proc.join() #on attend la fin du proc pour le terminer
     
-    shm.close()
-    shm.unlink()
+    
     mq.remove()
     print("Fin simulation")
 
