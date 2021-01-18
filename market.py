@@ -14,6 +14,10 @@ class market:
     key = 666
     crise = False
     guerre = False
+    dictature = False
+    anarchie = False
+    crash_fincancier = False
+    inflation = False
     fin = False
 
     def worker(self, cout, m, t): #gére  les transactions avec les maisons
@@ -34,7 +38,18 @@ class market:
         print("Début Economics")
         secondes = 0
         while not(self.fin):
-            test = randint(0,1)
+            #test = randint(0,1)
+            evenement_E = randint(1,4000)#les évènements ont une chance sur 200 d'arriver
+            if evenement_E == 921 :
+                crash_fincancier = True
+                os.kill(int(os.getppid()), signal.SIGUSR5)
+            if evenement_E == 123 :
+                inflation = True
+                os.kill(int(os.getppid()), signal.SIGUSR6)
+            if evenement_E == 3900 : 
+                anarchie = True
+                os.kill(int(os.getppid()), signal.SIGUSR7)
+            '''
             if test == 1 :
                 pass
                 print("crise")
@@ -43,6 +58,7 @@ class market:
                 pass
                 print('pas crise')
                 os.kill(int(os.getppid()), signal.SIGUSR1)  #guerre = True
+            '''
             barrier.wait()
         print("Fin economics")
 
@@ -52,7 +68,20 @@ class market:
         print("Début Politics")
         secondes = 0
         while not(self.fin):
-            test = randint(0,1)
+            evenement_P = randint(1,400)
+            if evenement_P == 9 :
+                pass 
+                guerre = True
+                os.kill(int(os.getppid()), signal.SIGUSR2) #guerre = true)
+            if evenement_P == 3 :
+                pass 
+                dictature = True
+                os.kill(int(os.getppid()), signal.SIGUSR3) #dictature = true          
+            if evenement_P == 0 : 
+                pass
+                anarchie = True
+                os.kill(int(os.getppid()), signal.SIGUSR4) #anarchie = true
+            '''
             if test == 1 :
                 pass
                 print("guerre")
@@ -61,7 +90,7 @@ class market:
                 pass
                 print("pas guerre")
                 os.kill(int(os.getppid()), signal.SIGUSR2)  #guerre = True
-
+            '''
             barrier.wait()
             #time.sleep(2)
         print("Fin politics")
@@ -73,6 +102,16 @@ class market:
             self.crise = not (self.crise)
         if sig == signal.SIGUSR2:
             self.guerre = not (self.guerre)
+        if sig == signal.SIGUSR3:
+            self.dictature = not (self.dictature)
+        if sig == signal.SIGUSR4:
+            self.anarchie = not (self.anarchie)
+        if sig == signal.SIGUSR4:
+            self.crash_fincancier = not (self.crash_fincancier)
+        if sig == signal.SIGUSR4:
+            self.inflation = not (self.inflation)
+        if sig == signal.SIGUSR4:
+            self.anrchie = not (self.anarchie)                     #à modifier, je n'ai pas encore trouvé quel évènement mettre
         if sig == signal.SIGINT:
             self.fin = True
 
@@ -101,6 +140,11 @@ class market:
 
         signal.signal(signal.SIGUSR1, self.handler)
         signal.signal(signal.SIGUSR2, self.handler)
+        signal.signal(signal.SIGUSR3, self.handler)
+        signal.signal(signal.SIGUSR4, self.handler)
+        signal.signal(signal.SIGUSR5, self.handler)
+        signal.signal(signal.SIGUSR6, self.handler)
+        signal.signal(signal.SIGUSR7, self.handler)
         signal.signal(signal.SIGINT, self.handler)   
 
         politics = Process(target=self.politics, args=(barrier,))
