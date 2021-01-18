@@ -16,8 +16,7 @@ if __name__== "__main__":
 
     key = 666
 
-    print("Début simulation")
-    b = Barrier(6, timeout=10) # le nombre de procs est le nombre de maisons + 4
+    b = Barrier(7, timeout=10) # le nombre de procs est le nombre de maisons + 4
     
     temperature = Value("i",0)
 

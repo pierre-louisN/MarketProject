@@ -36,12 +36,15 @@ class market:
         while not(self.fin):
             test = randint(0,1)
             if test == 1 :
+                pass
                 print("crise")
                 os.kill(int(os.getppid()), signal.SIGUSR1)  #guerre = True
             if test ==0 :
+                pass
                 print('pas crise')
                 os.kill(int(os.getppid()), signal.SIGUSR1)  #guerre = True
             barrier.wait()
+        print("Fin economics")
 
 
     
@@ -51,31 +54,43 @@ class market:
         while not(self.fin):
             test = randint(0,1)
             if test == 1 :
+                pass
                 print("guerre")
                 os.kill(int(os.getppid()), signal.SIGUSR2)  #guerre = True
             if test == 0 :
+                pass
                 print("pas guerre")
                 os.kill(int(os.getppid()), signal.SIGUSR2)  #guerre = True
+
             barrier.wait()
             #time.sleep(2)
         print("Fin politics")
                 
 
         
-    def handler(sig, frame):
+    def handler(self, sig, frame):
         if sig == signal.SIGUSR1:
-            crise = True
+            self.crise = not (self.crise)
         if sig == signal.SIGUSR2:
-            guerre = True
+            self.guerre = not (self.guerre)
         if sig == signal.SIGINT:
             self.fin = True
 
+
     def test(self):
         while True:
+            test = randint(0,1)
+            print(test)
             time.sleep(1)
             print('dans le fils')
+        
+    def run(self):
+        while True :
+            print('ici')
 
     def __init__(self, barrier):
+
+        
         print("Début Market")
         try:
             mq = sysv_ipc.MessageQueue(self.key)
@@ -84,45 +99,47 @@ class market:
             print("Message queue", self.key, "doesnt exists")
             sys.exit(1)
 
+        signal.signal(signal.SIGUSR1, self.handler)
+        signal.signal(signal.SIGUSR2, self.handler)
+        signal.signal(signal.SIGINT, self.handler)   
+
+        politics = Process(target=self.politics, args=(barrier,))
+        economics = Process(target=self.economics, args=(barrier,))
+        #test = Process(target=self.test)
+        #test.start()
+        politics.start()
+        economics.start()
         """
-        test = Process(target=self.test)
-        test.start()
         while True :
             time.sleep(1)
             print('dans le père')
-        """    
-        politics = Process(target=self.politics, args=(barrier,))
-        economics = Process(target=self.economics, args=(barrier,))
-
-        politics.start()
-        economics.start()
-
+        """
         with concurrent.futures.ThreadPoolExecutor(max_workers = 10) as executor: #limite  de 10 pour gérer les transactions avec les maisons
-            couts = 5 # cout de l'energie
+            cout = 5 # cout de l'energie
             secondes = 0
             while not(self.fin):
-                # on va regarder les signaux pour economics et politics
-                try : 
+                
+                try :
+                    """
+                    if (guerre) :
+                        print('guerre')
+                        cout = cout + cout*5
+                    if (crise):
+                        print('crise')
+                        cout = cout + cout*5
+                    """
+                    if (self.guerre) :
+                        cout  = cout + cout *0.5
+                    if (self.crise) :
+                        cout  = cout + cout *0.5
                     m, t = mq.receive(False)
-                    calc = executor.submit(self.worker(m, t, cout))
-                    print("energie =",calc.result())
-                    """
-                    futures = [executor.submit(self.worker, cout, m, t) for cout in couts]
-                    for future in concurrent.futures.as_completed(futures):
-                        if guerre and crise :
-                            couts = [future.result()+0,5*couts[0]]
-                        if guerre or crise :
-                            couts = [future.result()+0,5*couts[0]]
-                        else :
-                            couts = [future.result()]
-                    """
-                    #print("Jour n°",temps,"prix de l'energie est",couts[0])
-                        
+                    calc = executor.submit(self.worker, cout, m ,t)
+                    cout = calc.result()
+                    print("Jour n°",secondes,"prix de l'energie est",cout)
                     #cout[0] = calc.result()
                 except sysv_ipc.BusyError : 
                     pass
                     #print("Aucune transaction")
-                
                 except KeyboardInterrupt :
                     print("Crtl + C attrapé dans market")
                     self.fin = True
@@ -130,22 +147,16 @@ class market:
                 except sysv_ipc.Error :
                     print("error ")
                     break
-                """"
-                if secondes % 60 == 0:
-                    print("Jour n°",temps // 3600,"prix de l'energie est",couts[0])
-                if secondes == 10800:
-                    break
-                """
+
                 secondes += 1
-                #print("prix actuelle de l'energie est",cout)
-                #print(barrier.n_waiting,"procs qui attendent")
                 barrier.wait()
             
-            signal.signal(signal.SIGUSR1, self.handler)
-            print("Fin Market.")
-            politics.join()
-            economics.join()
-            mq.remove()
+        
+        print("Fin Market.")
+        politics.join()
+        economics.join()
+        mq.remove()
+
 
 
     
