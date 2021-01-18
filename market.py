@@ -18,6 +18,7 @@ class market:
     anarchie = False
     crash_fincancier = False
     inflation = False
+    catastrophe_naturelle = False
     fin = False
 
     def worker(self, cout, m, t): #gére  les transactions avec les maisons
@@ -106,12 +107,12 @@ class market:
             self.dictature = not (self.dictature)
         if sig == signal.SIGUSR4:
             self.anarchie = not (self.anarchie)
-        if sig == signal.SIGUSR4:
+        if sig == signal.SIGUSR5:
             self.crash_fincancier = not (self.crash_fincancier)
-        if sig == signal.SIGUSR4:
+        if sig == signal.SIGUSR6:
             self.inflation = not (self.inflation)
-        if sig == signal.SIGUSR4:
-            self.anrchie = not (self.anarchie)                     #à modifier, je n'ai pas encore trouvé quel évènement mettre
+        if sig == signal.SIGUSR7:
+            self.catastrophe_naturelle = not (self.catastrophe_naturelle)                     #à modifier, je n'ai pas encore trouvé quel évènement mettre
         if sig == signal.SIGINT:
             self.fin = True
 
@@ -171,13 +172,23 @@ class market:
                     if (crise):
                         print('crise')
                         cout = cout + cout*5
-                    """
+                    """                                                                                             
                     if (self.guerre) :
                         cout  = cout + cout *0.5
                     if (self.crise) :
                         cout  = cout + cout *0.5
+                    if (self.dictature) :
+                        cout  = cout + cout *0.80
+                    if (self.anarchie) :
+                        cout  = cout + cout *1
+                    if (self.crash_fincancier) :
+                        cout  = cout + cout *0.33
+                    if (self.inflation ) :
+                        cout  = cout + cout *0.20
+                    if (self.catastrophe_naturelle) :
+                        cout  = cout + cout *0.17
                     m, t = mq.receive(False)
-                    calc = executor.submit(self.worker, cout, m ,t)
+                    calc = executor.submit(self.worker, cout, m ,t)    
                     cout = calc.result()
                     print("Jour n°",secondes,"prix de l'energie est",cout)
                     #cout[0] = calc.result()
