@@ -3,6 +3,7 @@ import home
 import market
 import weather
 from multiprocessing import Barrier, Process, shared_memory, Process, Lock, Value
+import multiprocessing
 import sysv_ipc
 import signal
 import time
@@ -18,7 +19,7 @@ if __name__== "__main__":
 
     b = Barrier(7, timeout=10) # le nombre de procs est le nombre de maisons + 4
     
-    temperature = Value("i",0)
+    température = multiprocessing.Array('i',4) # je modifie, maintenant on un array
 
 
     try:

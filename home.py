@@ -35,9 +35,24 @@ class maison :
         while True :
             try : 
                 with temp.get_lock():
-                    meteo = temp.value
-                cons = cons - meteo #si temp > 0 alors consommation diminue (l'inverse sinon)
-                if cons<0 :
+                    meteo = temp[0]
+                    cat = 0
+                    catastrophe = temp[1]
+                    if catastrophe == 9 :
+                        tempête_de_neige= True
+                        cat = - 0.25
+                    if catastrophe == 3 :
+                        inondation = True
+                        cat = - 0.1
+                    if catastrophe == 0 : 
+                        ouragan = True
+                        cat = - 0.3
+                    if catastrophe == 0 : 
+                        tornade = True
+                        cat = - 0.1
+                cons = cons - meteo #si temp > 0 alors consommation diminue (l'inverse sinon), en vrai c'est bizarre ta conso augmente 
+                cons = cons + ( cat * cons )  #une catastrophe crée des coupures de courant etc, les services sont coupés donc moins de conso  
+                if cons<0 :                                                                #seulement à partir de -1 degré, c'est un peu bas
                     cons = 0
                 #print(os.getpid(),": production =",prod,"et consommation =",cons)
                 energie = prod - cons

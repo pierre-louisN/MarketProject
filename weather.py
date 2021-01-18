@@ -27,29 +27,30 @@ class weather:
         while True :
             with temperature.get_lock():
                 if secondes % 60 == 0: #on update tous les heures
+                    temperature [1] = randint(1,500)                    #Event purement aléatoire
                     if saison <= 89:                    #hiver, l'hiver dure environ 89 jours
                         #self.lock.acquire()
                         saison += 1
                         temp = randint(-2, 6)
-                        temperature.value = temp
+                        temperature [0] = temp
                         #self.lock.release()  
                     if (saison >= 89 and saison <= 182 ):                  #printemps, il dure environ 93 jours
                         #self.lock.acquire()
                         saison += 1
                         temp = randint(14, 20)
-                        temperature.value = temp
+                        temperature [0] = temp
                         #self.lock.release()
                     if (saison <= 276 and saison >= 182):                   #été, il dure environ 94 jours
                         #self.lock.acquire()
                         saison += 1
                         temp = randint(25, 32)
-                        temperature.value = temp
+                        temperature [0] = temp
                         #self.lock.release()
                     if (saison <= 365 and saison >= 277):                   #automne, il dure environ 89 jours
                         #self.lock.acquire()
                         saison += 1
                         temp = randint(11, 14)
-                        temperature.value = temp
+                        temperature [0] = temp
                         #self.lock.release()
                         if saison == 365 :
                             saison = 1
