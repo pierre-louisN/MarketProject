@@ -45,9 +45,11 @@ if __name__== "__main__":
     meteo.start()
     
     maisons = []
+    #les maisons sont numérotés
 
     for i in range(2): #initialise les maisons
-        maison = Process(target=home.maison, args=(b,temperature))
+        nom = "Maison n°"+str(i)
+        maison = Process(target=home.maison, args=(b,temperature, nom))
         maisons.append(maison)
         maison.start()
     

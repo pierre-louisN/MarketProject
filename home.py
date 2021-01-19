@@ -19,8 +19,8 @@ class maison :
     production = 100
     maisons = 10
 
-    def __init__(self, barrier, temp):
-        print("Debut home")
+    def __init__(self, barrier, temp, nom):
+        print("Debut",nom) # les maisons sont numérotés pour pouvoir débug plus facilement
         try:
             mq = sysv_ipc.MessageQueue(self.key)
 
@@ -41,14 +41,14 @@ class maison :
                     cons = 0
                 #print(os.getpid(),": production =",prod,"et consommation =",cons)
                 energie = prod - cons
-                #print(os.getpid(),": energie =",energie)
+                print(nom,": energie =",energie)
                 if energie<=0: # manque d'energie
                     message = str(os.getpid())
                     mq.send(message, type=3)
-                    #print(os.getpid(),": demande énergie")
+                    print(nom,": demande énergie")
                     try :
                         don, type = mq.receive(False,2) # on regarde s'il y a des donneurs
-                        #print(os.getpid(),": reception energie =",int(don))
+                        print(nom,": reception energie =",int(don))
                         prod  = prod + int(don)
                     except sysv_ipc.BusyError : #si aucune maison ne donne de l'énergie
                         mq.send(msg, type=5)
@@ -80,16 +80,13 @@ class maison :
             except sysv_ipc.Error :
                 print("Error")
                 break
-            """
-            if secondes % 3600 == 0:
-                print("Jour n°",secondes // 3600,os.getpid(),": prod =",prod,"et cons=",cons)
-            """
+
             print("Jour n°",secondes,os.getpid(),": prod =",prod,"et cons=",cons)
             secondes += 1
             barrier.wait()
         
         mq.remove()
-        print("Fin Home")
+        print("Fin",nom)
 
 
 

@@ -22,7 +22,6 @@ class market:
                 cout  = cout - (int(m) * 0.01) # plus d'énergie disponible donc le prix baisse
             elif t == 5 : # achat
                 #print("Maison veut acheter",int(m),"d'energie")
-                #print("Marché fait la transaction") # es ce que c'est nécessaire d'envoyer quelque chose dans la queue ici ?
                 cout = cout + (int(m) * 0.01) # moins d'énergie disponible donc le prix augmente
             else :
                 #print("Aucune transaction")
@@ -105,8 +104,7 @@ class market:
 
         politics = Process(target=self.politics, args=(barrier,))
         economics = Process(target=self.economics, args=(barrier,))
-        #test = Process(target=self.test)
-        #test.start()
+
         politics.start()
         economics.start()
         """
@@ -120,14 +118,6 @@ class market:
             while not(self.fin):
                 
                 try :
-                    """
-                    if (guerre) :
-                        print('guerre')
-                        cout = cout + cout*5
-                    if (crise):
-                        print('crise')
-                        cout = cout + cout*5
-                    """
                     if (self.guerre) :
                         cout  = cout + cout *0.5
                     if (self.crise) :
@@ -136,10 +126,9 @@ class market:
                     calc = executor.submit(self.worker, cout, m ,t)
                     cout = calc.result()
                     print("Jour n°",secondes,"prix de l'energie est",cout)
-                    #cout[0] = calc.result()
                 except sysv_ipc.BusyError : 
                     pass
-                    #print("Aucune transaction")
+
                 except KeyboardInterrupt :
                     print("Crtl + C attrapé dans market")
                     self.fin = True
