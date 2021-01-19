@@ -7,6 +7,7 @@ import multiprocessing
 import sysv_ipc
 import signal
 import time
+import threading
 
 fin = False
 
@@ -17,9 +18,11 @@ if __name__== "__main__":
 
     key = 666
 
-    b = Barrier(7, timeout=10) # le nombre de procs est le nombre de maisons + 4
+    nb_maisons = 5
+
+    b = Barrier(nb_maisons + 5, timeout=20) # le nombre de procs est le nombre de maisons + 4
     
-    température = multiprocessing.Array('i',4) # je modifie, maintenant on un array
+    temperature = multiprocessing.Array('i',4) # je modifie, maintenant on un array
 
 
     try:
@@ -48,7 +51,7 @@ if __name__== "__main__":
     maisons = []
     #les maisons sont numérotés
 
-    for i in range(2): #initialise les maisons
+    for i in range(nb_maisons): #initialise les maisons
         nom = "Maison n°"+str(i)
         maison = Process(target=home.maison, args=(b,temperature, nom))
         maisons.append(maison)
@@ -56,17 +59,15 @@ if __name__== "__main__":
     
     while not(fin):
         time.sleep(1) #pour "ralentir l'execution"
-        b.wait()
         try :
-            pass
+            b.wait()
+        except threading.BrokenBarrierError :
+            #print("barriere supprimé dans la simu")
+            fin = True
+
         except KeyboardInterrupt :
             fin = True
-        
-        if (fin):
-            print("Ctrl + C attrapé par simulation")
-            mq.remove()
-            break
-    
+
     signal.signal(signal.SIGINT, handler)
 
     marche.join()
@@ -74,8 +75,12 @@ if __name__== "__main__":
 
     for proc in maisons :
            proc.join() #on attend la fin du proc pour le terminer
+    print("Fin Maisons")
     
-    
-    mq.remove()
-    print("Fin simulation")
+    try :
+        mq.remove()
+    except sysv_ipc.ExistentialError:
+        pass
+        #print("Queue supprimé")
+    print("Fin Simulation")
 

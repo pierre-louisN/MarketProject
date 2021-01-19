@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-from multiprocessing import Lock,Process,Value, shared_memory,Barrier
+from multiprocessing import Lock,Process,Value, shared_memory, Barrier
 from random import *
 import multiprocessing
 import signal
 import time
-
+import threading
 
 #b = Barrier (1, timeout = 10)
 #temperature = multiprocessing.Value("i")
@@ -18,16 +18,20 @@ def liseur_Temp(lecture,temperature) :    # cette fonction simule ce que va fair
         print(lecture)                    # pour mieux observer son fonctionnement il suffit de rajouter des time.sleep dans def meteo
 '''    
 class weather:
+    
+    fin = False
+
     def meteo(self,temperature, barrier):
         # on simule les saisons avec une variable saison qui augmentera après un certains nombre de signaux
         # les températures sont données de façon aléatoire selon la saison
         # les saisons changent en continue pour le moment parce qu'on a pas encore synchronisé les process avec les signaux
         saison = 1
         secondes = 0
-        while True :
+        while not(self.fin) :
             with temperature.get_lock():
-                if secondes % 60 == 0: #on update tous les heures
-                    temperature [1] = randint(1,500)                    #Event purement aléatoire
+                if secondes % 10 == 0: #on update tous les heures
+                    temperature [1] = randint(1,10)                    #Event purement aléatoire
+                    print(temperature[1])
                     if saison <= 89:                    #hiver, l'hiver dure environ 89 jours
                         #self.lock.acquire()
                         saison += 1
@@ -57,8 +61,12 @@ class weather:
 
                 #print(temperature.value)
             secondes +=1
-            barrier.wait()
-        print("Fin weather")
+            try :
+                barrier.wait()
+            except threading.BrokenBarrierError :
+                #print("barriere supprimé")
+                self.fin = True
+        
     
  
     def __init__(self, barrier, temp):
@@ -67,9 +75,11 @@ class weather:
         #temp.value = 12
         
 
-        lecture = randint(1,5)
+        #lecture = randint(1,5)
         
         self.meteo(temp, barrier)
+
+        print("Fin Weather")
         #lock = Lock()
         
         #p1 = multiprocessing.Process(target=meteo, args=(saison_init,temperature,lock,b))
