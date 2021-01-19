@@ -117,7 +117,7 @@ class maison :
                 #print("Error")
                 self.fin = True
             
-            if secondes == 3 :
+            if secondes == 60 :
                 self.fin = True
             #print("Jour n°",secondes,os.getpid(),": prod =",prod,"et cons=",cons)
             secondes += 1
