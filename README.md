@@ -3,6 +3,7 @@
 Projet PPC 3TC 
 
 pour lancer la simulation : 
+avoir installer le module sysv_ipc (si ce n'est pas le cas voir ici : http://semanchuk.com/philip/sysv_ipc/)
 deziper l'archive
 chmod u+x simulation.py
 sudo ./simulation.py
